@@ -274,9 +274,15 @@
 <div class="lightbox" id="lightbox">
   <div class="lightbox-overlay" id="lightboxOverlay"></div>
   <div class="lightbox-content">
-    <button class="lightbox-close" id="lightboxClose"><i class="fas fa-times"></i></button>
+    <button class="lightbox-close" id="lightboxClose" type="button" aria-label="Back to portfolio"><i class="fas fa-arrow-left"></i> <span>Back</span></button>
     <div class="lightbox-video-wrap"><video id="lightboxVideo" controls></video></div>
-    <div class="lightbox-info"><h3 id="lightboxTitle"></h3><p id="lightboxDesc"></p></div>
+    <div class="lightbox-info">
+      <div class="lightbox-playback-row">
+        <button class="lightbox-play-toggle" id="lightboxPlayPause" type="button" aria-label="Play video"><i class="fas fa-play"></i><span>Play</span></button>
+        <h3 id="lightboxTitle"></h3>
+      </div>
+      <p id="lightboxDesc"></p>
+    </div>
   </div>
 </div>
 
@@ -338,18 +344,18 @@
       </div>
       <div class="contact-card"><i class="fas fa-user"></i><div><h4>Name</h4><p>Divakar V</p></div></div>
       <div class="contact-card"><i class="fab fa-instagram"></i><div><h4>Instagram</h4><p>@divakarrr._.off</p></div></div>
-      <div class="contact-card"><i class="fab fa-whatsapp"></i><div><h4>WhatsApp</h4><p>+91 6381869475</p></div></div>
+      <a class="contact-card whatsapp-contact-card" href="https://wa.me/916381869475" target="_blank" rel="noopener noreferrer" aria-label="Chat with Divakar on WhatsApp"><i class="fab fa-whatsapp"></i><div><h4>WhatsApp</h4><p>Chat now · +91 6381869475</p></div></a>
       <div class="contact-card"><i class="fas fa-map-marker-alt"></i><div><h4>Location</h4><p>India 🇮🇳</p></div></div>
       <div class="contact-card"><i class="fas fa-tools"></i><div><h4>Tools</h4><p>CapCut, Canva &amp; Photoshop</p></div></div>
     </div>
     <form class="contact-form" id="contactForm">
       <div class="form-row">
-        <div class="form-group"><label>Your Name</label><input type="text" placeholder="Your name" required/></div>
-        <div class="form-group"><label>Contact</label><input type="text" placeholder="Phone / Instagram" required/></div>
+        <div class="form-group"><label for="contactName">Your Name</label><input type="text" id="contactName" name="name" placeholder="Your name" autocomplete="name" required/></div>
+        <div class="form-group"><label for="contactMethod">Contact</label><input type="text" id="contactMethod" name="contact" placeholder="Phone No / Instagram ID" autocomplete="tel" required/></div>
       </div>
-      <div class="form-group"><label>What do you need?</label>
-        <select>
-          <option>Select type of work</option>
+      <div class="form-group"><label for="contactService">What do you need?</label>
+        <select id="contactService" name="service" required>
+          <option value="" disabled selected>Select type of work</option>
           <option>Instagram Reel Edit</option>
           <option>YouTube Shorts Edit</option>
           <option>Beat Sync Video</option>
@@ -361,9 +367,9 @@
           <option>Other</option>
         </select>
       </div>
-      <div class="form-group"><label>Details</label><textarea rows="4" placeholder="Tell me more about what you want..."></textarea></div>
-      <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-paper-plane"></i> Send Message</button>
-      <div class="form-success" id="formSuccess"><i class="fas fa-check-circle"></i> Message sent! Divakar will reply soon.</div>
+      <div class="form-group"><label for="contactDetails">Details</label><textarea id="contactDetails" name="details" rows="4" placeholder="Tell me more about what you want..." required></textarea></div>
+      <button type="submit" class="btn btn-primary btn-full"><i class="fab fa-whatsapp"></i> Send via WhatsApp</button>
+      <div class="form-success" id="formSuccess"><i class="fas fa-check-circle"></i> WhatsApp opened with your message. Tap Send there to deliver it. <a id="whatsappFallback" href="https://wa.me/916381869475" target="_blank" rel="noopener noreferrer">Open WhatsApp</a></div>
     </form>
   </div>
 </section>

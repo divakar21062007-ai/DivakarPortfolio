@@ -157,14 +157,31 @@ document.querySelectorAll(".filter-btn").forEach(btn=>{
 // ======== LIGHTBOX ========
 const lightbox=document.getElementById("lightbox");
 const lbVid=document.getElementById("lightboxVideo");
+const lbPlayPause=document.getElementById("lightboxPlayPause");
+function syncLightboxPlayButton(){
+  const isPlaying=!lbVid.paused&&!lbVid.ended;
+  lbPlayPause.innerHTML=`<i class="fas fa-${isPlaying?"pause":"play"}"></i><span>${isPlaying?"Pause":"Play"}</span>`;
+  lbPlayPause.setAttribute("aria-label",`${isPlaying?"Pause":"Play"} video`);
+}
 function openLightbox(item){
   document.getElementById("lightboxTitle").textContent=item.title;
   document.getElementById("lightboxDesc").textContent=item.desc||"";
+  lbVid.pause();
   lbVid.src=item.src;
+  lbVid.currentTime=0;
+  syncLightboxPlayButton();
   lightbox.classList.add("open");
   document.body.style.overflow="hidden";
 }
-function closeLightbox(){lightbox.classList.remove("open");lbVid.pause();lbVid.src="";document.body.style.overflow="";}
+function closeLightbox(){lightbox.classList.remove("open");lbVid.pause();lbVid.src="";syncLightboxPlayButton();document.body.style.overflow="";}
+lbPlayPause.addEventListener("click",()=>{
+  if(lbVid.paused)lbVid.play().catch(()=>{});
+  else lbVid.pause();
+  syncLightboxPlayButton();
+});
+lbVid.addEventListener("play",syncLightboxPlayButton);
+lbVid.addEventListener("pause",syncLightboxPlayButton);
+lbVid.addEventListener("ended",syncLightboxPlayButton);
 document.getElementById("lightboxClose").addEventListener("click",closeLightbox);
 document.getElementById("lightboxOverlay").addEventListener("click",closeLightbox);
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeLightbox();});
@@ -279,9 +296,22 @@ function showToast(msg,type="success"){
 // ======== CONTACT FORM ========
 document.getElementById("contactForm").addEventListener("submit",e=>{
   e.preventDefault();
+  const form=e.currentTarget;
+  const formData=new FormData(form);
+  const message=[
+    "Hi Divakar, I'd like to enquire about your creative services.",
+    `Name: ${formData.get("name")}`,
+    `My contact: ${formData.get("contact")}`,
+    `Service: ${formData.get("service")}`,
+    `Details: ${formData.get("details")}`
+  ].join("\n");
+  const whatsappUrl=`https://wa.me/916381869475?text=${encodeURIComponent(message)}`;
+  const fallback=document.getElementById("whatsappFallback");
+  fallback.href=whatsappUrl;
+  window.open(whatsappUrl,"_blank","noopener,noreferrer");
   const success=document.getElementById("formSuccess");
   success.classList.add("show");
-  e.target.reset();
+  form.reset();
   setTimeout(()=>success.classList.remove("show"),5000);
 });
 
