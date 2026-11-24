@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -275,7 +275,7 @@
   <div class="lightbox-overlay" id="lightboxOverlay"></div>
   <div class="lightbox-content">
     <button class="lightbox-close" id="lightboxClose" type="button" aria-label="Back to portfolio"><i class="fas fa-arrow-left"></i> <span>Back</span></button>
-    <div class="lightbox-video-wrap"><video id="lightboxVideo" controls></video></div>
+    <div class="lightbox-video-wrap"><video id="lightboxVideo" controls playsinline webkit-playsinline></video></div>
     <div class="lightbox-info">
       <div class="lightbox-playback-row">
         <button class="lightbox-play-toggle" id="lightboxPlayPause" type="button" aria-label="Play video"><i class="fas fa-play"></i><span>Play</span></button>
@@ -291,20 +291,37 @@
   <div class="section-label">Upload</div>
   <h2 class="section-title text-center">Upload Your <span class="neon-text">Edited Videos</span></h2>
   <p class="section-sub text-center">Add your CapCut edits &amp; Canva creations to your WINORRA Digital portfolio</p>
-  <div class="upload-container">
+  <div class="admin-panel" id="adminPanel">
+    <div id="adminLoginWrap">
+      <h3><i class="fas fa-lock"></i> Admin Login</h3>
+      <p>Sign in to upload or delete videos. Visitors can only watch.</p>
+      <form class="admin-login-form" id="adminLoginForm">
+        <input type="email" id="adminEmail" placeholder="Admin email" autocomplete="username" required/>
+        <input type="password" id="adminPassword" placeholder="Password" autocomplete="current-password" required/>
+        <button class="btn btn-primary" type="submit">Sign In</button>
+      </form>
+    </div>
+    <div id="adminSignedIn" hidden>
+      <h3><i class="fas fa-user-shield"></i> Admin Mode</h3>
+      <p class="admin-status" id="adminStatus"></p>
+      <button class="btn btn-secondary" id="adminLogout" type="button"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+    </div>
+    <p class="admin-auth-message" id="adminAuthMessage" role="status"></p>
+  </div>
+  <div class="upload-container" id="uploadTools" hidden>
     <div class="upload-zone" id="uploadZone">
       <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
       <h3>Drag &amp; Drop Your Video Here</h3>
       <p>or click the button below to browse</p>
-      <p class="upload-hint">Supports: MP4, MOV, AVI, MKV, WEBM &middot; Any size</p>
-      <input type="file" id="videoFileInput" accept="video/*" style="display:none"/>
-      <button class="btn btn-primary" id="browseBtn"><i class="fas fa-folder-open"></i> Browse Files</button>
+      <p class="upload-hint">Supports: MP4, MOV, WEBM &middot; CapCut Exports under 50MB</p>
+      <input type="file" id="videoFileInput" accept="video/mp4,video/webm,video/quicktime" style="display:none"/>
+      <button class="btn btn-primary" id="browseBtn" type="button"><i class="fas fa-folder-open"></i> Browse Files</button>
     </div>
     <div class="upload-form" id="uploadForm" style="display:none">
-      <div class="video-preview-wrap"><video id="previewVideo" controls></video></div>
+      <div class="video-preview-wrap"><video id="previewVideo" controls playsinline></video></div>
       <div class="form-fields">
-        <div class="form-group"><label>Video Title *</label><input type="text" id="vidTitle" placeholder="e.g. My Cinematic Travel Reel"/></div>
-        <div class="form-group"><label>Category</label>
+        <div class="form-group"><label for="vidTitle">Video Title *</label><input type="text" id="vidTitle" placeholder="e.g. My Cinematic Travel Reel" required/></div>
+        <div class="form-group"><label for="vidCategory">Category</label>
           <select id="vidCategory">
             <option value="reels">Reels / Shorts</option>
             <option value="cinematic">Cinematic Edit</option>
@@ -312,16 +329,16 @@
             <option value="design">Design / Canva</option>
           </select>
         </div>
-        <div class="form-group"><label>Description (optional)</label><textarea id="vidDesc" rows="3" placeholder="Tell about this edit..."></textarea></div>
+        <div class="form-group"><label for="vidDesc">Description (optional)</label><textarea id="vidDesc" rows="3" placeholder="Tell about this edit..."></textarea></div>
         <div class="form-actions">
-          <button class="btn btn-secondary" id="cancelUpload"><i class="fas fa-times"></i> Cancel</button>
-          <button class="btn btn-primary" id="addToPortfolio"><i class="fas fa-plus"></i> Add to Portfolio</button>
+          <button class="btn btn-secondary" id="cancelUpload" type="button"><i class="fas fa-times"></i> Cancel</button>
+          <button class="btn btn-primary" id="addToPortfolio" type="button"><i class="fas fa-plus"></i> Add to Portfolio</button>
         </div>
       </div>
     </div>
     <div class="upload-progress" id="uploadProgress" style="display:none">
       <div class="progress-icon"><i class="fas fa-cog fa-spin"></i></div>
-      <p>Adding to your WINORRA Digital portfolio...</p>
+      <p>Uploading to your WINORRA Digital portfolio...</p>
       <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
     </div>
     <div class="uploaded-list" id="uploadedList"></div>
@@ -406,6 +423,8 @@
 </footer>
 
 <button class="back-to-top" id="backToTop"><i class="fas fa-chevron-up"></i></button>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
