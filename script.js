@@ -1,123 +1,227 @@
 // ============================================================
 //  DIVAKAR V | WINORRA DIGITAL — Portfolio Script
-//  Videos are stored in Supabase Storage + Postgres, so they
-//  survive refresh and show on every device (phone, laptop...).
+//  Complete Video Showcase — 21 High-Speed Web Edits
 // ============================================================
 
-const SUPABASE_URL = window.WINORRA_SUPABASE_URL || 'https://qodfxqzalnrkmslkjncc.supabase.co';
-const SUPABASE_ANON_KEY = window.WINORRA_SUPABASE_ANON_KEY || 'sb_publishable_1ppAO_Rlge-bzBtEDeU6IQ_xllqJcNC';
-const BUCKET = 'portfolio-videos';
-const MAX_VIDEO_BYTES = 50 * 1024 * 1024; // 50MB per video file (matches the bucket limit)
-const ALLOWED_TYPES = ['video/mp4', 'video/webm', 'video/quicktime'];
+const BUILT_IN_VIDEOS = [
+  {
+    id: 'sago-1',
+    title: 'SagoTalks Brand Reel',
+    category: 'reels',
+    desc: 'Dynamic pacing, custom typography & engaging short-form reel edit.',
+    url: 'videos/sagotalks_20261114_113455471.mp4',
+    isBuiltIn: true
+  },
+  {
+    id: 'sago-2',
+    title: 'SagoTalks Podcast Clip',
+    category: 'reels',
+    desc: 'Speaker highlights, sound design & smooth visual cuts.',
+    url: 'videos/sagotalks_20261114_123024731.mp4',
+    isBuiltIn: true
+  },
+  {
+    id: 'sago-3',
+    title: 'SagoTalks Promo Beat Sync',
+    category: 'beats',
+    desc: 'High energy transitions synced to the beat with dynamic zoom ramps.',
+    url: 'videos/sagotalks_20261114_123035754.mp4',
+    isBuiltIn: true
+  },
+  {
+    id: 'sago-4',
+    title: 'SagoTalks Talk Series',
+    category: 'reels',
+    desc: 'Clean subtitles, color grading & brand-focused content layout.',
+    url: 'videos/sagotalks_20261114_123042493.mp4',
+    isBuiltIn: true
+  },
+  {
+    id: 'edit-22',
+    title: 'Dynamic Commercial Cut',
+    category: 'cinematic',
+    desc: 'Polished brand visual edit with cinematic transitions & sound design.',
+    url: 'videos/lv_0_20261108161218.mp4',
+    isBuiltIn: true
+  },
+  {
+    id: 'edit-21',
+    title: 'Trending Instagram Reel',
+    category: 'reels',
+    desc: 'Engaging hook, modern text styling & fast-paced cuts for high retention.',
+    url: 'videos/lv_0_20261102142742.mp4',
+    isBuiltIn: true
+  },
+  {
+    id: 'edit-20',
+    title: 'Typography Motion Graphic',
+    category: 'design',
+    desc: 'Canva & Photoshop graphics animated with smooth typography layout.',
+    url: 'videos/lv_0_20260907104636.mp4',
+    isBuiltIn: true
+  },
+  {
+    id: 'edit-19',
+    title: 'Fast Beat Sync Reel',
+    category: 'beats',
+    desc: 'Rapid cuts matched precisely to musical drops and snare hits.',
+    url: 'videos/lv_0_20260902092133.mp4',
+    isBuiltIn: true
+  },
+  {
+    id: 'edit-18',
+    title: 'Cinematic Story Sequence',
+    category: 'cinematic',
+    desc: 'Atmospheric color palette, slow-motion sequences & seamless flow.',
+    url: 'videos/lv_0_20260826135818.mp4',
+    isBuiltIn: true
+  },
+  {
+    id: 'edit-17',
+    title: 'Creative Visual Effects Edit',
+    category: 'reels',
+    desc: 'Creative seamless transitions & modern visual effects for social media.',
+    url: 'videos/lv_0_20260620204938.mp4',
+    isBuiltIn: true
+  },
+  {
+    id: 'edit-16',
+    title: 'Color Grade & Film Tone',
+    category: 'cinematic',
+    desc: 'Rich cinematic LUTs, warm tone mapping and depth enhancement.',
+    url: 'videos/lv_0_20260610222617.mp4',
+    isBuiltIn: true
+  },
+  {
+    id: 'edit-15',
+    title: 'Sound Design & Drop Sync',
+    category: 'beats',
+    desc: 'Punchy sound effects with audio-visual synchronization.',
+    url: 'videos/lv_0_20260610031510.mp4',
+    isBuiltIn: true
+  },
+  {
+    id: 'edit-13',
+    title: 'Beat Drop Transition Reel',
+    category: 'beats',
+    desc: 'Fast-paced cuts matched precisely with musical drops and rhythm.',
+    url: 'videos/lv_0_20251230090721.mp4',
+    isBuiltIn: true
+  },
+  {
+    id: 'edit-12',
+    title: 'Social Media Promo Cut',
+    category: 'reels',
+    desc: 'Promo reel edit crafted for maximum audience engagement and shares.',
+    url: 'videos/lv_0_20251127102443.mp4',
+    isBuiltIn: true
+  },
+  {
+    id: 'edit-11',
+    title: 'Aesthetic Flow Reel',
+    category: 'reels',
+    desc: 'Soft aesthetic color grading, gentle zooms & stylish text layout.',
+    url: 'videos/lv_0_20251121120854.mp4',
+    isBuiltIn: true
+  },
+  {
+    id: 'edit-10',
+    title: 'Seamless Transition Clip',
+    category: 'reels',
+    desc: 'Speed ramping, whip pans and masked transition effects.',
+    url: 'videos/lv_0_20250921212808.mp4',
+    isBuiltIn: true
+  },
+  {
+    id: 'edit-9',
+    title: 'Branding & Typography Edit',
+    category: 'design',
+    desc: 'Clean brand title cards, lower thirds and logo reveal animations.',
+    url: 'videos/lv_0_20250910124632.mp4',
+    isBuiltIn: true
+  },
+  {
+    id: 'edit-8',
+    title: 'Audio Reactive Beat Sync',
+    category: 'beats',
+    desc: 'Rhythmically driven pacing with speed alterations on the beat.',
+    url: 'videos/lv_0_20250910121628.mp4',
+    isBuiltIn: true
+  },
+  {
+    id: 'edit-7',
+    title: 'Shorts Hook & Fast Pacing',
+    category: 'reels',
+    desc: 'First 3-second hook structure optimized for Shorts & Reels algorithms.',
+    url: 'videos/lv_0_20250910025246.mp4',
+    isBuiltIn: true
+  },
+  {
+    id: 'edit-6',
+    title: 'Cinematic Mood & Ambiance',
+    category: 'cinematic',
+    desc: 'Dramatic mood lighting, cinematic wide framing & slow motion.',
+    url: 'videos/lv_0_20250910021851.mp4',
+    isBuiltIn: true
+  },
+  {
+    id: 'edit-5',
+    title: 'Creative Montage Edit',
+    category: 'reels',
+    desc: 'High energy montage weaving multiple angles into a compelling story.',
+    url: 'videos/lv_0_20250828061649.mp4',
+    isBuiltIn: true
+  }
+];
 
-let supabaseClient = null;
 let portfolioData = [];
 let currentFilter = 'all';
 let currentFile = null;
-let currentFileType = '';
 let previewObjectUrl = null;
-let currentUser = null; // signed-in admin (null for normal visitors)
 
 const $ = (id) => document.getElementById(id);
 const escapeHTML = (value = '') => String(value).replace(/[&<>"']/g, (c) => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
 }[c]));
 
-// Keep a reference to the empty-state node. (Older code wiped it out with
-// grid.innerHTML and then could never find it again.)
-const emptyStateEl = $('emptyState');
-
-// Old versions saved videos as base64 in this browser only. Clean that up.
-try { localStorage.removeItem('winorra_local_videos'); } catch (e) {}
-
-function showGridMessage(title, text) {
-  const grid = $('portfolioGrid');
-  if (!grid) return;
-  grid.innerHTML = `<div class="empty-state"><i class="fas fa-film"></i><h3>${escapeHTML(title)}</h3><p>${escapeHTML(text)}</p></div>`;
-}
-
-/* ---- Initialize Supabase ---- */
-async function initializeSupabase() {
-  if (!window.supabase?.createClient) {
-    showGridMessage('Could not connect', 'The Supabase library did not load. Check your internet connection and refresh.');
-    return;
-  }
+/* ---- Load All Videos ---- */
+function loadVideos() {
+  let userVideos = [];
   try {
-    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  } catch (err) {
-    console.error('Supabase client error:', err);
-    showGridMessage('Could not connect', 'Supabase client failed to start. Check supabase-config.js.');
-    return;
+    const saved = localStorage.getItem('winorra_user_videos');
+    if (saved) {
+      userVideos = JSON.parse(saved);
+      if (!Array.isArray(userVideos)) userVideos = [];
+    }
+  } catch (e) {
+    console.warn('LocalStorage error:', e);
   }
-  await setupAuth();
-  await loadPortfolio();
-}
 
-/* ---- Admin Auth (only the admin can upload / delete) ---- */
-function setAuthMessage(msg = '') {
-  const el = $('adminAuthMessage');
-  if (el) el.textContent = msg;
-}
-
-function applyAuthState(user) {
-  currentUser = user || null;
-  const signedIn = !!currentUser;
-  if ($('adminLoginWrap')) $('adminLoginWrap').hidden = signedIn;
-  if ($('adminSignedIn')) $('adminSignedIn').hidden = !signedIn;
-  if ($('uploadTools')) $('uploadTools').hidden = !signedIn;
-  if ($('adminStatus')) $('adminStatus').textContent = signedIn ? `Signed in as ${currentUser.email}` : '';
+  portfolioData = [...userVideos, ...BUILT_IN_VIDEOS];
   renderPortfolio(currentFilter);
   renderUploadedList();
 }
 
-async function setupAuth() {
-  const { data } = await supabaseClient.auth.getSession();
-  applyAuthState(data?.session?.user || null);
-  supabaseClient.auth.onAuthStateChange((_event, session) => {
-    // keep this callback synchronous (no awaited Supabase calls inside)
-    applyAuthState(session?.user || null);
-  });
-}
-
-$('adminLoginForm')?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  if (!supabaseClient) return setAuthMessage('Supabase is not connected yet. Refresh and try again.');
-  setAuthMessage('Signing in...');
-  const { error } = await supabaseClient.auth.signInWithPassword({
-    email: $('adminEmail').value.trim(),
-    password: $('adminPassword').value
-  });
-  if (error) return setAuthMessage(error.message);
-  $('adminPassword').value = '';
-  setAuthMessage('');
-});
-
-$('adminLogout')?.addEventListener('click', async () => {
-  await supabaseClient?.auth.signOut();
-});
-
 /* ---- Render Portfolio Grid ---- */
 function renderPortfolio(filter = 'all') {
   const grid = $('portfolioGrid');
+  const empty = $('emptyState');
   if (!grid) return;
 
   const filtered = filter === 'all' ? portfolioData : portfolioData.filter(v => v.category === filter);
 
   if (!filtered.length) {
     grid.innerHTML = '';
-    if (emptyStateEl) { emptyStateEl.style.display = 'block'; grid.appendChild(emptyStateEl); }
+    if (empty) { empty.style.display = 'block'; grid.appendChild(empty); }
     return;
   }
-  if (emptyStateEl) emptyStateEl.style.display = 'none';
+  if (empty) empty.style.display = 'none';
 
-  // "#t=0.5" makes iPhone/Android browsers draw a real thumbnail frame
-  // instead of a black/empty box. No "reveal" class here: on phones it kept
-  // cards invisible (opacity:0) until the observer fired.
   grid.innerHTML = filtered.map((v, idx) => `
-    <div class="portfolio-card" style="animation-delay:${idx * 0.08}s">
+    <div class="portfolio-card reveal visible" style="animation-delay:${Math.min(idx * 0.04, 0.4)}s">
       <div class="card-thumb">
-        <div class="card-thumb-bg"><i class="fas fa-film"></i></div>
-        <video src="${escapeHTML(v.url)}#t=0.5" muted playsinline webkit-playsinline preload="metadata"></video>
+        <div class="card-thumb-bg"><i class="fas fa-play"></i></div>
+        <video src="${escapeHTML(v.url)}" muted preload="metadata" playsinline></video>
         <div class="card-overlay"><div class="card-play"><i class="fas fa-play"></i></div></div>
       </div>
       <div class="card-body">
@@ -127,96 +231,63 @@ function renderPortfolio(filter = 'all') {
       </div>
       <div class="card-footer">
         <span class="card-tag">${escapeHTML(v.category)}</span>
-        ${currentUser ? `<button class="card-delete" type="button" data-delete-id="${escapeHTML(v.id)}" title="Delete video" aria-label="Delete ${escapeHTML(v.title)}"><i class="fas fa-trash"></i></button>` : ''}
+        ${!v.isBuiltIn ? `<button class="card-delete" data-delete-id="${escapeHTML(v.id)}" title="Delete video" aria-label="Delete"><i class="fas fa-trash"></i></button>` : `<span style="font-size:0.72rem;color:var(--w-blue);font-weight:700;"><i class="fas fa-check-circle"></i> WINORRA Edit</span>`}
       </div>
     </div>`).join('');
 
   grid.querySelectorAll('.portfolio-card').forEach((card, idx) => {
     const video = filtered[idx];
-    const thumb = card.querySelector('.card-thumb');
-    thumb?.addEventListener('click', () => openLightbox(video));
-    const preview = card.querySelector('.card-thumb video');
-    preview?.addEventListener('mouseenter', e => e.currentTarget.play().catch(() => {}));
-    preview?.addEventListener('mouseleave', e => { e.currentTarget.pause(); e.currentTarget.currentTime = 0.5; });
+    const thumbVideo = card.querySelector('.card-thumb video');
+
+    card.querySelector('.card-overlay')?.addEventListener('click', () => openLightbox(video));
+
+    card.querySelector('.card-thumb')?.addEventListener('mouseenter', () => {
+      if (thumbVideo) thumbVideo.play().catch(() => {});
+    });
+    card.querySelector('.card-thumb')?.addEventListener('mouseleave', () => {
+      if (thumbVideo) {
+        thumbVideo.pause();
+        thumbVideo.currentTime = 0;
+      }
+    });
   });
 
   grid.querySelectorAll('[data-delete-id]').forEach(button => {
-    button.addEventListener('click', () => deleteCard(button.dataset.deleteId));
+    button.addEventListener('click', (e) => {
+      e.stopPropagation();
+      deleteCard(button.dataset.deleteId);
+    });
   });
 }
 
-/* ---- Load Videos from Supabase (runs on every page load / refresh) ---- */
-async function loadPortfolio() {
-  if (!supabaseClient) return;
-
-  if (!portfolioData.length) {
-    const grid = $('portfolioGrid');
-    if (grid) grid.innerHTML = '<p class="empty-state">Loading portfolio videos...</p>';
-  }
-
+/* ---- Delete User-Uploaded Video ---- */
+window.deleteCard = function(id) {
+  if (!confirm('Are you sure you want to delete this uploaded video?')) return;
   try {
-    const { data, error } = await supabaseClient
-      .from('portfolio_videos')
-      .select('id,title,category,description,file_path,public_url,created_at')
-      .order('created_at', { ascending: false });
+    let userVideos = JSON.parse(localStorage.getItem('winorra_user_videos') || '[]');
+    userVideos = userVideos.filter(v => v.id != id);
+    localStorage.setItem('winorra_user_videos', JSON.stringify(userVideos));
+  } catch (e) {}
 
-    if (error) throw error;
-
-    portfolioData = (data || []).map(row => ({
-      id: row.id,
-      title: row.title,
-      category: row.category,
-      desc: row.description || '',
-      url: row.public_url || '',
-      storagePath: row.file_path || null,
-      createdAt: row.created_at
-    }));
-
-    const active = document.querySelector('.filter-btn.active')?.dataset.filter || currentFilter;
-    renderPortfolio(active);
-    renderUploadedList();
-  } catch (error) {
-    console.error('Could not load portfolio videos:', error);
-    showGridMessage('Videos could not be loaded', error.message || 'Check your Supabase setup and database policies.');
-  }
-}
-
-/* ---- Delete Video (admin only) ---- */
-window.deleteCard = async function (id) {
-  if (!currentUser) return alert('Please sign in as admin to delete videos.');
-  if (!confirm('Are you sure you want to delete this video?')) return;
-  const video = portfolioData.find(v => v.id == id);
-  if (!video) return;
-
-  try {
-    // 1) database row first, 2) then the file in storage
-    const { error: rowError } = await supabaseClient.from('portfolio_videos').delete().eq('id', id);
-    if (rowError) throw rowError;
-    if (video.storagePath) {
-      const { error: storageError } = await supabaseClient.storage.from(BUCKET).remove([video.storagePath]);
-      if (storageError) console.warn('Row deleted, but file could not be removed from storage:', storageError);
-    }
-  } catch (e) {
-    console.error('Delete failed:', e);
-    return alert('Delete failed: ' + (e.message || e));
-  }
-
-  portfolioData = portfolioData.filter(v => v.id != id);
-  renderPortfolio(currentFilter);
-  renderUploadedList();
+  loadVideos();
 };
 
-/* ---- Uploaded List in Upload Section (admin only) ---- */
+/* ---- Uploaded List in Upload Section ---- */
 function renderUploadedList() {
   const list = $('uploadedList');
   if (!list) return;
-  if (!currentUser || !portfolioData.length) { list.innerHTML = ''; return; }
 
-  list.innerHTML = `<h4 style="font-family:var(--font-title);font-size:.85rem;color:var(--w-blue);margin-bottom:1rem;letter-spacing:1px;">SAVED VIDEOS (${portfolioData.length})</h4>` +
-    portfolioData.map(v => `
+  const userVideos = portfolioData.filter(v => !v.isBuiltIn);
+  if (!userVideos.length) {
+    list.innerHTML = '';
+    return;
+  }
+
+  list.innerHTML = `<h4 style="font-family:var(--font-title);font-size:.85rem;color:var(--w-blue);margin-bottom:1rem;letter-spacing:1px;">MY RECENTLY UPLOADED VIDEOS (${userVideos.length})</h4>` +
+    userVideos.map(v => `
       <div class="uploaded-item">
-        <div class="uploaded-thumb"><video src="${escapeHTML(v.url)}#t=0.5" muted playsinline preload="metadata"></video></div>
-        <div class="uploaded-info"><h4>${escapeHTML(v.title)}</h4><p>${escapeHTML(v.category)} &bull; Available online</p></div>
+        <div class="uploaded-thumb"><video src="${escapeHTML(v.url)}" muted preload="metadata"></video></div>
+        <div class="uploaded-info"><h4>${escapeHTML(v.title)}</h4><p>${escapeHTML(v.category)} &bull; Saved</p></div>
         <div class="uploaded-actions"><button type="button" data-list-delete="${escapeHTML(v.id)}" title="Delete"><i class="fas fa-trash"></i></button></div>
       </div>`).join('');
 
@@ -225,38 +296,29 @@ function renderUploadedList() {
   });
 }
 
-/* ---- Lightbox ---- */
+/* ---- Lightbox Player ---- */
 function openLightbox(vid) {
   const lb = $('lightbox');
   if (!lb) return;
-  $('lightboxVideo').src = vid.url;
+  const lbVideo = $('lightboxVideo');
+  lbVideo.src = vid.url;
   $('lightboxTitle').textContent = vid.title;
   $('lightboxDesc').textContent = vid.desc || vid.category;
   lb.classList.add('open');
-  $('lightboxVideo').play().catch(() => {});
+  lbVideo.play().catch(() => {});
 }
 
 function closeLightbox() {
   $('lightbox')?.classList.remove('open');
   const video = $('lightboxVideo');
-  if (video) { video.pause(); video.removeAttribute('src'); video.load(); }
+  if (video) {
+    video.pause();
+    video.removeAttribute('src');
+    video.load();
+  }
 }
 $('lightboxClose')?.addEventListener('click', closeLightbox);
 $('lightboxOverlay')?.addEventListener('click', closeLightbox);
-
-// Play / Pause button inside the lightbox
-(function setupLightboxToggle() {
-  const btn = $('lightboxPlayPause');
-  const video = $('lightboxVideo');
-  if (!btn || !video) return;
-  const sync = () => {
-    const playing = !video.paused && !video.ended;
-    btn.innerHTML = playing ? '<i class="fas fa-pause"></i><span>Pause</span>' : '<i class="fas fa-play"></i><span>Play</span>';
-    btn.setAttribute('aria-label', playing ? 'Pause video' : 'Play video');
-  };
-  btn.addEventListener('click', () => { video.paused ? video.play().catch(() => {}) : video.pause(); });
-  ['play', 'pause', 'ended', 'loadeddata'].forEach(ev => video.addEventListener(ev, sync));
-})();
 
 /* ---- Filter Tabs ---- */
 document.querySelectorAll('.filter-btn').forEach(btn => btn.addEventListener('click', () => {
@@ -266,7 +328,7 @@ document.querySelectorAll('.filter-btn').forEach(btn => btn.addEventListener('cl
   renderPortfolio(currentFilter);
 }));
 
-/* ---- Upload Handler (admin only) ---- */
+/* ---- Upload Controls ---- */
 const uploadZone   = $('uploadZone');
 const fileInput    = $('videoFileInput');
 const browseBtn    = $('browseBtn');
@@ -282,7 +344,8 @@ uploadZone?.addEventListener('click', e => { if (e.target === uploadZone) fileIn
 uploadZone?.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
 uploadZone?.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
 uploadZone?.addEventListener('drop', e => {
-  e.preventDefault(); uploadZone.classList.remove('dragover');
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
   const file = e.dataTransfer.files[0];
   if (file) handleFile(file);
 });
@@ -296,32 +359,19 @@ function resetUploadForm() {
   previewObjectUrl = null;
   if (previewVideo) { previewVideo.removeAttribute('src'); previewVideo.load(); }
   currentFile = null;
-  currentFileType = '';
   if (fileInput) fileInput.value = '';
   if ($('vidTitle')) $('vidTitle').value = '';
   if ($('vidDesc')) $('vidDesc').value = '';
   if (progressFill) progressFill.style.width = '0%';
 }
 
-// Phones sometimes give an empty file.type (especially .mov / .mp4), so fall back to the extension.
-function detectVideoType(file) {
-  if (ALLOWED_TYPES.includes(file.type)) return file.type;
-  const ext = (file.name.split('.').pop() || '').toLowerCase();
-  return { mp4: 'video/mp4', m4v: 'video/mp4', webm: 'video/webm', mov: 'video/quicktime' }[ext] || '';
-}
-
 function handleFile(file) {
-  const type = detectVideoType(file);
-  if (!type) {
+  const allowed = ['video/mp4', 'video/webm', 'video/quicktime'];
+  if (!allowed.includes(file.type)) {
     alert('Please choose an MP4, WebM or MOV video file.');
     return;
   }
-  if (file.size > MAX_VIDEO_BYTES) {
-    alert('Video is larger than 50MB. Please export a 1080p web version under 50MB.');
-    return;
-  }
   currentFile = file;
-  currentFileType = type;
   if (previewObjectUrl) URL.revokeObjectURL(previewObjectUrl);
   previewObjectUrl = URL.createObjectURL(file);
   previewVideo.src = previewObjectUrl;
@@ -331,8 +381,7 @@ function handleFile(file) {
 
 cancelBtn?.addEventListener('click', resetUploadForm);
 
-addBtn?.addEventListener('click', async () => {
-  if (!supabaseClient || !currentUser) return alert('Please sign in as admin first.');
+addBtn?.addEventListener('click', () => {
   const title = $('vidTitle')?.value.trim();
   if (!title) return alert('Please enter a video title!');
   if (!currentFile) return alert('Please select a video file!');
@@ -341,58 +390,42 @@ addBtn?.addEventListener('click', async () => {
   uploadProgress.style.display = 'block';
   addBtn.disabled = true;
 
-  const progressText = uploadProgress.querySelector('p');
-  if (progressText) progressText.textContent = 'Uploading to cloud storage... Please wait.';
-  if (progressFill) progressFill.style.width = '20%';
+  if (progressFill) progressFill.style.width = '40%';
 
-  const safeName = currentFile.name.normalize('NFKD').replace(/[^a-zA-Z0-9._-]/g, '-').replace(/-+/g, '-').slice(-100);
-  // The storage policy only allows the admin to write inside a folder named after their user id.
-  const storagePath = `${currentUser.id}/${Date.now()}-${safeName}`;
   const category = $('vidCategory')?.value || 'reels';
   const desc = $('vidDesc')?.value.trim() || '';
 
-  try {
-    if (progressFill) progressFill.style.width = '45%';
-    const { data: uploaded, error: uploadError } = await supabaseClient.storage
-      .from(BUCKET)
-      .upload(storagePath, currentFile, { cacheControl: '3600', contentType: currentFileType, upsert: false });
-    if (uploadError) throw uploadError;
-
-    const { data: publicData } = supabaseClient.storage.from(BUCKET).getPublicUrl(uploaded.path);
-
+  const reader = new FileReader();
+  reader.onload = function(e) {
     if (progressFill) progressFill.style.width = '80%';
-    const { error: insertError } = await supabaseClient
-      .from('portfolio_videos')
-      .insert({
-        title,
-        category,
-        description: desc,
-        file_path: uploaded.path,
-        public_url: publicData.publicUrl,
-        created_by: currentUser.id
-      });
+    const base64 = e.target.result;
+    const newVideo = {
+      id: 'upload-' + Date.now(),
+      title,
+      category,
+      desc,
+      url: base64,
+      isBuiltIn: false,
+      createdAt: new Date().toISOString()
+    };
 
-    if (insertError) {
-      // don't leave an orphan file behind if the database row failed
-      await supabaseClient.storage.from(BUCKET).remove([uploaded.path]);
-      throw insertError;
+    try {
+      const userVideos = JSON.parse(localStorage.getItem('winorra_user_videos') || '[]');
+      userVideos.unshift(newVideo);
+      localStorage.setItem('winorra_user_videos', JSON.stringify(userVideos));
+    } catch (err) {
+      console.warn('LocalStorage limit for large file.');
     }
 
     if (progressFill) progressFill.style.width = '100%';
-    // Re-read from the database so what you see is exactly what a refresh will show.
-    await loadPortfolio();
     setTimeout(() => {
       addBtn.disabled = false;
       resetUploadForm();
+      loadVideos();
       $('portfolio')?.scrollIntoView({ behavior: 'smooth' });
     }, 400);
-  } catch (err) {
-    console.error('Upload failed:', err);
-    addBtn.disabled = false;
-    uploadProgress.style.display = 'none';
-    uploadForm.style.display = 'grid';
-    alert('Upload failed: ' + (err.message || err) + '\n\nTip: make sure you ran supabase-setup.sql and are signed in as the admin user.');
-  }
+  };
+  reader.readAsDataURL(currentFile);
 });
 
 /* ---- Navbar & Scroll ---- */
@@ -416,7 +449,7 @@ hamburger?.addEventListener('click', () => navLinks?.classList.toggle('open'));
 document.querySelectorAll('.nav-link').forEach(l => l.addEventListener('click', () => navLinks?.classList.remove('open')));
 $('backToTop')?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-/* ---- Scroll Reveal & Counters ---- */
+/* ---- Stat Counters & Skill Animation ---- */
 let observer = null;
 if ('IntersectionObserver' in window) {
   observer = new IntersectionObserver(entries => {
@@ -455,7 +488,7 @@ if ('IntersectionObserver' in window) {
   document.querySelectorAll('.hero-stats').forEach(s => statObs.observe(s));
 }
 
-/* ---- Cursor ---- */
+/* ---- Cursor Follower ---- */
 const dot  = $('cursorDot');
 const ring = $('cursorRing');
 document.addEventListener('mousemove', e => {
@@ -463,7 +496,7 @@ document.addEventListener('mousemove', e => {
   if (ring) { ring.style.left = e.clientX + 'px'; ring.style.top = e.clientY + 'px'; }
 });
 
-/* ---- Particles ---- */
+/* ---- Ambient Particle Canvas ---- */
 const canvas = $('particleCanvas');
 const ctx = canvas?.getContext('2d');
 if (canvas && ctx) {
@@ -492,14 +525,12 @@ if (canvas && ctx) {
   })();
 }
 
-/* ---- Start ---- */
-// Load the portfolio right away (do not wait for the window "load" event,
-// which on phones can be delayed by fonts/images).
-initializeSupabase();
-
-function hideLoader() {
-  $('loader')?.classList.add('hide');
-  document.querySelectorAll('.reveal').forEach(el => observer?.observe(el));
-}
-window.addEventListener('load', () => setTimeout(hideLoader, 1800));
-setTimeout(hideLoader, 4500); // safety net so the loader can never get stuck on slow mobile networks
+/* ---- Window Load ---- */
+window.addEventListener('load', () => {
+  loadVideos();
+  setTimeout(() => {
+    const loader = $('loader');
+    if (loader) loader.classList.add('hide');
+    document.querySelectorAll('.reveal').forEach(el => observer?.observe(el));
+  }, 1600);
+});
