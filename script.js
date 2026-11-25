@@ -1,6 +1,6 @@
 // ============================================================
 //  DIVAKAR V | WINORRA DIGITAL — Portfolio Script
-//  Complete Video Showcase — 21 High-Speed Web Edits
+//  Featured Video Showcase — Vercel Production Ready
 // ============================================================
 
 const BUILT_IN_VIDEOS = [
@@ -37,139 +37,11 @@ const BUILT_IN_VIDEOS = [
     isBuiltIn: true
   },
   {
-    id: 'edit-22',
-    title: 'Dynamic Commercial Cut',
+    id: 'cine-1',
+    title: 'Cinematic Visual Edit',
     category: 'cinematic',
-    desc: 'Polished brand visual edit with cinematic transitions & sound design.',
-    url: 'videos/lv_0_20261108161218.mp4',
-    isBuiltIn: true
-  },
-  {
-    id: 'edit-21',
-    title: 'Trending Instagram Reel',
-    category: 'reels',
-    desc: 'Engaging hook, modern text styling & fast-paced cuts for high retention.',
-    url: 'videos/lv_0_20261102142742.mp4',
-    isBuiltIn: true
-  },
-  {
-    id: 'edit-20',
-    title: 'Typography Motion Graphic',
-    category: 'design',
-    desc: 'Canva & Photoshop graphics animated with smooth typography layout.',
-    url: 'videos/lv_0_20260907104636.mp4',
-    isBuiltIn: true
-  },
-  {
-    id: 'edit-19',
-    title: 'Fast Beat Sync Reel',
-    category: 'beats',
-    desc: 'Rapid cuts matched precisely to musical drops and snare hits.',
-    url: 'videos/lv_0_20260902092133.mp4',
-    isBuiltIn: true
-  },
-  {
-    id: 'edit-18',
-    title: 'Cinematic Story Sequence',
-    category: 'cinematic',
-    desc: 'Atmospheric color palette, slow-motion sequences & seamless flow.',
-    url: 'videos/lv_0_20260826135818.mp4',
-    isBuiltIn: true
-  },
-  {
-    id: 'edit-17',
-    title: 'Creative Visual Effects Edit',
-    category: 'reels',
-    desc: 'Creative seamless transitions & modern visual effects for social media.',
+    desc: 'Cinematic color tones, smooth slow-motion & storytelling flow.',
     url: 'videos/lv_0_20260620204938.mp4',
-    isBuiltIn: true
-  },
-  {
-    id: 'edit-16',
-    title: 'Color Grade & Film Tone',
-    category: 'cinematic',
-    desc: 'Rich cinematic LUTs, warm tone mapping and depth enhancement.',
-    url: 'videos/lv_0_20260610222617.mp4',
-    isBuiltIn: true
-  },
-  {
-    id: 'edit-15',
-    title: 'Sound Design & Drop Sync',
-    category: 'beats',
-    desc: 'Punchy sound effects with audio-visual synchronization.',
-    url: 'videos/lv_0_20260610031510.mp4',
-    isBuiltIn: true
-  },
-  {
-    id: 'edit-13',
-    title: 'Beat Drop Transition Reel',
-    category: 'beats',
-    desc: 'Fast-paced cuts matched precisely with musical drops and rhythm.',
-    url: 'videos/lv_0_20251230090721.mp4',
-    isBuiltIn: true
-  },
-  {
-    id: 'edit-12',
-    title: 'Social Media Promo Cut',
-    category: 'reels',
-    desc: 'Promo reel edit crafted for maximum audience engagement and shares.',
-    url: 'videos/lv_0_20251127102443.mp4',
-    isBuiltIn: true
-  },
-  {
-    id: 'edit-11',
-    title: 'Aesthetic Flow Reel',
-    category: 'reels',
-    desc: 'Soft aesthetic color grading, gentle zooms & stylish text layout.',
-    url: 'videos/lv_0_20251121120854.mp4',
-    isBuiltIn: true
-  },
-  {
-    id: 'edit-10',
-    title: 'Seamless Transition Clip',
-    category: 'reels',
-    desc: 'Speed ramping, whip pans and masked transition effects.',
-    url: 'videos/lv_0_20250921212808.mp4',
-    isBuiltIn: true
-  },
-  {
-    id: 'edit-9',
-    title: 'Branding & Typography Edit',
-    category: 'design',
-    desc: 'Clean brand title cards, lower thirds and logo reveal animations.',
-    url: 'videos/lv_0_20250910124632.mp4',
-    isBuiltIn: true
-  },
-  {
-    id: 'edit-8',
-    title: 'Audio Reactive Beat Sync',
-    category: 'beats',
-    desc: 'Rhythmically driven pacing with speed alterations on the beat.',
-    url: 'videos/lv_0_20250910121628.mp4',
-    isBuiltIn: true
-  },
-  {
-    id: 'edit-7',
-    title: 'Shorts Hook & Fast Pacing',
-    category: 'reels',
-    desc: 'First 3-second hook structure optimized for Shorts & Reels algorithms.',
-    url: 'videos/lv_0_20250910025246.mp4',
-    isBuiltIn: true
-  },
-  {
-    id: 'edit-6',
-    title: 'Cinematic Mood & Ambiance',
-    category: 'cinematic',
-    desc: 'Dramatic mood lighting, cinematic wide framing & slow motion.',
-    url: 'videos/lv_0_20250910021851.mp4',
-    isBuiltIn: true
-  },
-  {
-    id: 'edit-5',
-    title: 'Creative Montage Edit',
-    category: 'reels',
-    desc: 'High energy montage weaving multiple angles into a compelling story.',
-    url: 'videos/lv_0_20250828061649.mp4',
     isBuiltIn: true
   }
 ];
@@ -218,7 +90,7 @@ function renderPortfolio(filter = 'all') {
   if (empty) empty.style.display = 'none';
 
   grid.innerHTML = filtered.map((v, idx) => `
-    <div class="portfolio-card reveal visible" style="animation-delay:${Math.min(idx * 0.04, 0.4)}s">
+    <div class="portfolio-card reveal visible" style="animation-delay:${idx * 0.08}s">
       <div class="card-thumb">
         <div class="card-thumb-bg"><i class="fas fa-play"></i></div>
         <video src="${escapeHTML(v.url)}" muted preload="metadata" playsinline></video>
@@ -231,7 +103,7 @@ function renderPortfolio(filter = 'all') {
       </div>
       <div class="card-footer">
         <span class="card-tag">${escapeHTML(v.category)}</span>
-        ${!v.isBuiltIn ? `<button class="card-delete" data-delete-id="${escapeHTML(v.id)}" title="Delete video" aria-label="Delete"><i class="fas fa-trash"></i></button>` : `<span style="font-size:0.72rem;color:var(--w-blue);font-weight:700;"><i class="fas fa-check-circle"></i> WINORRA Edit</span>`}
+        ${!v.isBuiltIn ? `<button class="card-delete" data-delete-id="${escapeHTML(v.id)}" title="Delete video" aria-label="Delete"><i class="fas fa-trash"></i></button>` : `<span style="font-size:0.75rem;color:var(--w-blue);font-weight:700;"><i class="fas fa-check-circle"></i> WINORRA Edit</span>`}
       </div>
     </div>`).join('');
 
