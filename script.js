@@ -1,75 +1,176 @@
 // ============================================================
 //  DIVAKAR V | WINORRA DIGITAL — Portfolio Script
-//  Featured Video Showcase — Vercel Production Ready
+//  Supabase Cloud Database & Storage + Admin-Only Upload
 // ============================================================
 
-const BUILT_IN_VIDEOS = [
-  {
-    id: 'sago-1',
-    title: 'SagoTalks Brand Reel',
-    category: 'reels',
-    desc: 'Dynamic pacing, custom typography & engaging short-form reel edit.',
-    url: 'videos/sagotalks_20261114_113455471.mp4',
-    isBuiltIn: true
-  },
-  {
-    id: 'sago-2',
-    title: 'SagoTalks Podcast Clip',
-    category: 'reels',
-    desc: 'Speaker highlights, sound design & smooth visual cuts.',
-    url: 'videos/sagotalks_20261114_123024731.mp4',
-    isBuiltIn: true
-  },
-  {
-    id: 'sago-3',
-    title: 'SagoTalks Promo Beat Sync',
-    category: 'beats',
-    desc: 'High energy transitions synced to the beat with dynamic zoom ramps.',
-    url: 'videos/sagotalks_20261114_123035754.mp4',
-    isBuiltIn: true
-  },
-  {
-    id: 'sago-4',
-    title: 'SagoTalks Talk Series',
-    category: 'reels',
-    desc: 'Clean subtitles, color grading & brand-focused content layout.',
-    url: 'videos/sagotalks_20261114_123042493.mp4',
-    isBuiltIn: true
-  },
-  {
-    id: 'cine-1',
-    title: 'Cinematic Visual Edit',
-    category: 'cinematic',
-    desc: 'Cinematic color tones, smooth slow-motion & storytelling flow.',
-    url: 'videos/lv_0_20260620204938.mp4',
-    isBuiltIn: true
-  }
-];
+const SUPABASE_URL = window.WINORRA_SUPABASE_URL || 'https://qodfxqzalnrkmslkjncc.supabase.co';
+const SUPABASE_ANON_KEY = window.WINORRA_SUPABASE_ANON_KEY || 'sb_publishable_1ppAO_Rlge-bzBtEDeU6IQ_xllqJcNC';
+const BUCKET = 'portfolio-videos';
+const MAX_VIDEO_BYTES = 50 * 1024 * 1024; // 50MB per file
 
+let supabaseClient = null;
+let currentAdminUser = null;
 let portfolioData = [];
 let currentFilter = 'all';
 let currentFile = null;
 let previewObjectUrl = null;
+
+// CDN stream fallbacks
+const STREAM_REEL = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
+const STREAM_BEAT = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4';
+const STREAM_CINE = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4';
+const STREAM_DES  = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4';
+
+// 23 Baseline Edited Videos
+const BUILT_IN_VIDEOS = [
+  { id: 'sago-1', title: 'SagoTalks Brand Reel', category: 'reels', desc: 'Dynamic pacing, custom typography & engaging short-form reel edit.', url: 'videos/sagotalks_20261114_113455471.mp4', fallbackUrl: STREAM_REEL, isBuiltIn: true },
+  { id: 'sago-2', title: 'SagoTalks Podcast Clip', category: 'reels', desc: 'Speaker highlights, sound design & smooth visual cuts.', url: 'videos/sagotalks_20261114_123024731.mp4', fallbackUrl: STREAM_REEL, isBuiltIn: true },
+  { id: 'sago-3', title: 'SagoTalks Promo Beat Sync', category: 'beats', desc: 'High energy transitions synced to the beat with dynamic zoom ramps.', url: 'videos/sagotalks_20261114_123035754.mp4', fallbackUrl: STREAM_BEAT, isBuiltIn: true },
+  { id: 'sago-4', title: 'SagoTalks Talk Series', category: 'reels', desc: 'Clean subtitles, color grading & brand-focused content layout.', url: 'videos/sagotalks_20261114_123042493.mp4', fallbackUrl: STREAM_REEL, isBuiltIn: true },
+  { id: 'edit-23', title: 'Cinematic Narrative Edit', category: 'cinematic', desc: 'High-definition color grade, pacing & emotional storytelling flow.', url: 'videos/lv_0_20261109094127.mp4', fallbackUrl: STREAM_CINE, isBuiltIn: true },
+  { id: 'edit-22', title: 'Dynamic Commercial Cut', category: 'cinematic', desc: 'Polished brand visual edit with cinematic transitions & sound design.', url: 'videos/lv_0_20261108161218.mp4', fallbackUrl: STREAM_CINE, isBuiltIn: true },
+  { id: 'edit-21', title: 'Trending Instagram Reel', category: 'reels', desc: 'Engaging hook, modern text styling & fast-paced cuts for high retention.', url: 'videos/lv_0_20261102142742.mp4', fallbackUrl: STREAM_REEL, isBuiltIn: true },
+  { id: 'edit-20', title: 'Typography Motion Graphic', category: 'design', desc: 'Canva & Photoshop graphics animated with smooth typography layout.', url: 'videos/lv_0_20260907104636.mp4', fallbackUrl: STREAM_DES, isBuiltIn: true },
+  { id: 'edit-19', title: 'Fast Beat Sync Reel', category: 'beats', desc: 'Rapid cuts matched precisely to musical drops and snare hits.', url: 'videos/lv_0_20260902092133.mp4', fallbackUrl: STREAM_BEAT, isBuiltIn: true },
+  { id: 'edit-18', title: 'Cinematic Story Sequence', category: 'cinematic', desc: 'Atmospheric color palette, slow-motion sequences & seamless flow.', url: 'videos/lv_0_20260826135818.mp4', fallbackUrl: STREAM_CINE, isBuiltIn: true },
+  { id: 'edit-17', title: 'Creative Visual Effects Edit', category: 'reels', desc: 'Creative seamless transitions & modern visual effects for social media.', url: 'videos/lv_0_20260620204938.mp4', fallbackUrl: STREAM_REEL, isBuiltIn: true },
+  { id: 'edit-16', title: 'Color Grade & Film Tone', category: 'cinematic', desc: 'Rich cinematic LUTs, warm tone mapping and depth enhancement.', url: 'videos/lv_0_20260610222617.mp4', fallbackUrl: STREAM_CINE, isBuiltIn: true },
+  { id: 'edit-15', title: 'Sound Design & Drop Sync', category: 'beats', desc: 'Punchy sound effects with audio-visual synchronization.', url: 'videos/lv_0_20260610031510.mp4', fallbackUrl: STREAM_BEAT, isBuiltIn: true },
+  { id: 'edit-14', title: 'Full Length Creative Edit', category: 'cinematic', desc: 'Complete video production edit with layered audio and visuals.', url: 'videos/lv_0_20260110160118.mp4', fallbackUrl: STREAM_CINE, isBuiltIn: true },
+  { id: 'edit-13', title: 'Beat Drop Transition Reel', category: 'beats', desc: 'Fast-paced cuts matched precisely with musical drops and rhythm.', url: 'videos/lv_0_20251230090721.mp4', fallbackUrl: STREAM_BEAT, isBuiltIn: true },
+  { id: 'edit-12', title: 'Social Media Promo Cut', category: 'reels', desc: 'Promo reel edit crafted for maximum audience engagement and shares.', url: 'videos/lv_0_20251127102443.mp4', fallbackUrl: STREAM_REEL, isBuiltIn: true },
+  { id: 'edit-11', title: 'Aesthetic Flow Reel', category: 'reels', desc: 'Soft aesthetic color grading, gentle zooms & stylish text layout.', url: 'videos/lv_0_20251121120854.mp4', fallbackUrl: STREAM_REEL, isBuiltIn: true },
+  { id: 'edit-10', title: 'Seamless Transition Clip', category: 'reels', desc: 'Speed ramping, whip pans and masked transition effects.', url: 'videos/lv_0_20250921212808.mp4', fallbackUrl: STREAM_REEL, isBuiltIn: true },
+  { id: 'edit-9', title: 'Branding & Typography Edit', category: 'design', desc: 'Clean brand title cards, lower thirds and logo reveal animations.', url: 'videos/lv_0_20250910124632.mp4', fallbackUrl: STREAM_DES, isBuiltIn: true },
+  { id: 'edit-8', title: 'Audio Reactive Beat Sync', category: 'beats', desc: 'Rhythmically driven pacing with speed alterations on the beat.', url: 'videos/lv_0_20250910121628.mp4', fallbackUrl: STREAM_BEAT, isBuiltIn: true },
+  { id: 'edit-7', title: 'Shorts Hook & Fast Pacing', category: 'reels', desc: 'First 3-second hook structure optimized for Shorts & Reels algorithms.', url: 'videos/lv_0_20250910025246.mp4', fallbackUrl: STREAM_REEL, isBuiltIn: true },
+  { id: 'edit-6', title: 'Cinematic Mood & Ambiance', category: 'cinematic', desc: 'Dramatic mood lighting, cinematic wide framing & slow motion.', url: 'videos/lv_0_20250910021851.mp4', fallbackUrl: STREAM_CINE, isBuiltIn: true },
+  { id: 'edit-5', title: 'Creative Montage Edit', category: 'reels', desc: 'High energy montage weaving multiple angles into a compelling story.', url: 'videos/lv_0_20250828061649.mp4', fallbackUrl: STREAM_REEL, isBuiltIn: true }
+];
 
 const $ = (id) => document.getElementById(id);
 const escapeHTML = (value = '') => String(value).replace(/[&<>"']/g, (c) => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
 }[c]));
 
-/* ---- Load All Videos ---- */
-function loadVideos() {
-  let userVideos = [];
-  try {
-    const saved = localStorage.getItem('winorra_user_videos');
-    if (saved) {
-      userVideos = JSON.parse(saved);
-      if (!Array.isArray(userVideos)) userVideos = [];
+/* ---- Initialize Supabase ---- */
+async function initSupabase() {
+  if (window.supabase?.createClient) {
+    try {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const { data } = await supabaseClient.auth.getSession();
+      updateAdminAuthUI(data?.session?.user || null);
+
+      supabaseClient.auth.onAuthStateChange((_event, session) => {
+        updateAdminAuthUI(session?.user || null);
+      });
+    } catch (err) {
+      console.warn('Supabase init note:', err);
     }
-  } catch (e) {
-    console.warn('LocalStorage error:', e);
+  }
+  await loadPortfolio();
+}
+
+/* ---- Update Admin UI State ---- */
+function updateAdminAuthUI(user) {
+  currentAdminUser = user || null;
+  const loginWrap = $('adminLoginWrap');
+  const signedInWrap = $('adminSignedIn');
+  const uploadTools = $('uploadTools');
+  const statusText = $('adminStatus');
+
+  if (user) {
+    if (loginWrap) loginWrap.hidden = true;
+    if (signedInWrap) signedInWrap.hidden = false;
+    if (uploadTools) uploadTools.hidden = false;
+    if (statusText) statusText.textContent = `Signed in as Admin: ${user.email}`;
+  } else {
+    if (loginWrap) loginWrap.hidden = false;
+    if (signedInWrap) signedInWrap.hidden = true;
+    if (uploadTools) uploadTools.hidden = true;
   }
 
-  portfolioData = [...userVideos, ...BUILT_IN_VIDEOS];
+  // Re-render to show/hide delete buttons
+  renderPortfolio(currentFilter);
+  renderUploadedList();
+}
+
+/* ---- Admin Login Form Handler ---- */
+$('adminLoginForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const authMsg = $('adminAuthMessage');
+  const email = $('adminEmail')?.value.trim();
+  const password = $('adminPassword')?.value;
+
+  if (!supabaseClient) {
+    if (authMsg) authMsg.textContent = 'Supabase client is connecting... Please wait.';
+    return;
+  }
+
+  if (authMsg) {
+    authMsg.style.color = 'var(--w-blue)';
+    authMsg.textContent = 'Verifying admin credentials...';
+  }
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    if (authMsg) {
+      authMsg.style.color = 'var(--w-red)';
+      authMsg.textContent = 'Login failed: ' + error.message;
+    }
+    return;
+  }
+
+  if (authMsg) authMsg.textContent = '';
+  updateAdminAuthUI(data.user);
+  await loadPortfolio();
+});
+
+/* ---- Admin Logout Handler ---- */
+$('adminLogout')?.addEventListener('click', async () => {
+  if (supabaseClient) {
+    await supabaseClient.auth.signOut();
+  }
+  updateAdminAuthUI(null);
+  const authMsg = $('adminAuthMessage');
+  if (authMsg) {
+    authMsg.style.color = 'var(--w-blue)';
+    authMsg.textContent = 'Admin signed out. Visitor mode active.';
+    setTimeout(() => { if (authMsg) authMsg.textContent = ''; }, 3000);
+  }
+});
+
+/* ---- Load All Videos (Supabase Cloud + Baseline) ---- */
+async function loadPortfolio() {
+  let cloudVideos = [];
+
+  if (supabaseClient) {
+    try {
+      const { data, error } = await supabaseClient
+        .from('portfolio_videos')
+        .select('id, title, category, description, public_url, file_path, created_at')
+        .order('created_at', { ascending: false });
+
+      if (!error && Array.isArray(data)) {
+        cloudVideos = data.map(row => ({
+          id: row.id,
+          title: row.title,
+          category: row.category,
+          desc: row.description || '',
+          url: row.public_url,
+          storagePath: row.file_path,
+          isBuiltIn: false,
+          createdAt: row.created_at
+        }));
+      }
+    } catch (e) {
+      console.warn('Supabase fetch note:', e);
+    }
+  }
+
+  // Cloud uploads appear first, followed by built-in baseline edits
+  portfolioData = [...cloudVideos, ...BUILT_IN_VIDEOS];
   renderPortfolio(currentFilter);
   renderUploadedList();
 }
@@ -90,10 +191,10 @@ function renderPortfolio(filter = 'all') {
   if (empty) empty.style.display = 'none';
 
   grid.innerHTML = filtered.map((v, idx) => `
-    <div class="portfolio-card reveal visible" style="animation-delay:${idx * 0.08}s">
+    <div class="portfolio-card reveal visible" style="animation-delay:${Math.min(idx * 0.04, 0.4)}s">
       <div class="card-thumb">
         <div class="card-thumb-bg"><i class="fas fa-play"></i></div>
-        <video src="${escapeHTML(v.url)}" muted preload="metadata" playsinline></video>
+        <video src="${escapeHTML(v.url)}" data-fallback="${escapeHTML(v.fallbackUrl || '')}" muted preload="metadata" playsinline></video>
         <div class="card-overlay"><div class="card-play"><i class="fas fa-play"></i></div></div>
       </div>
       <div class="card-body">
@@ -103,13 +204,21 @@ function renderPortfolio(filter = 'all') {
       </div>
       <div class="card-footer">
         <span class="card-tag">${escapeHTML(v.category)}</span>
-        ${!v.isBuiltIn ? `<button class="card-delete" data-delete-id="${escapeHTML(v.id)}" title="Delete video" aria-label="Delete"><i class="fas fa-trash"></i></button>` : `<span style="font-size:0.75rem;color:var(--w-blue);font-weight:700;"><i class="fas fa-check-circle"></i> WINORRA Edit</span>`}
+        ${currentAdminUser && !v.isBuiltIn ? `<button class="card-delete" data-delete-id="${escapeHTML(v.id)}" title="Delete video" aria-label="Delete"><i class="fas fa-trash"></i> Delete</button>` : `<a href="https://www.instagram.com/divakarrr._.off" target="_blank" rel="noopener noreferrer" style="font-size:0.75rem;color:var(--w-blue);font-weight:700;display:flex;align-items:center;gap:4px;"><i class="fab fa-instagram"></i> Divakar V</a>`}
       </div>
     </div>`).join('');
 
   grid.querySelectorAll('.portfolio-card').forEach((card, idx) => {
     const video = filtered[idx];
     const thumbVideo = card.querySelector('.card-thumb video');
+
+    thumbVideo?.addEventListener('error', () => {
+      const fb = thumbVideo.dataset.fallback;
+      if (fb && thumbVideo.src !== fb) {
+        thumbVideo.src = fb;
+        video.url = fb;
+      }
+    });
 
     card.querySelector('.card-overlay')?.addEventListener('click', () => openLightbox(video));
 
@@ -132,34 +241,45 @@ function renderPortfolio(filter = 'all') {
   });
 }
 
-/* ---- Delete User-Uploaded Video ---- */
-window.deleteCard = function(id) {
-  if (!confirm('Are you sure you want to delete this uploaded video?')) return;
-  try {
-    let userVideos = JSON.parse(localStorage.getItem('winorra_user_videos') || '[]');
-    userVideos = userVideos.filter(v => v.id != id);
-    localStorage.setItem('winorra_user_videos', JSON.stringify(userVideos));
-  } catch (e) {}
+/* ---- Delete Video (Admin Only) ---- */
+window.deleteCard = async function(id) {
+  if (!currentAdminUser) return alert('Only the Admin can delete videos.');
+  const video = portfolioData.find(v => v.id == id);
+  if (!video || !confirm(`Delete "${video.title}" from your portfolio?`)) return;
 
-  loadVideos();
+  if (supabaseClient) {
+    try {
+      if (video.storagePath) {
+        await supabaseClient.storage.from(BUCKET).remove([video.storagePath]);
+      }
+      await supabaseClient.from('portfolio_videos').delete().eq('id', id);
+    } catch (e) {
+      console.warn('Supabase delete error:', e);
+    }
+  }
+
+  await loadPortfolio();
 };
 
-/* ---- Uploaded List in Upload Section ---- */
+/* ---- Render Uploaded List (Admin Panel) ---- */
 function renderUploadedList() {
   const list = $('uploadedList');
-  if (!list) return;
-
-  const userVideos = portfolioData.filter(v => !v.isBuiltIn);
-  if (!userVideos.length) {
-    list.innerHTML = '';
+  if (!list || !currentAdminUser) {
+    if (list) list.innerHTML = '';
     return;
   }
 
-  list.innerHTML = `<h4 style="font-family:var(--font-title);font-size:.85rem;color:var(--w-blue);margin-bottom:1rem;letter-spacing:1px;">MY RECENTLY UPLOADED VIDEOS (${userVideos.length})</h4>` +
-    userVideos.map(v => `
+  const cloudVideos = portfolioData.filter(v => !v.isBuiltIn);
+  if (!cloudVideos.length) {
+    list.innerHTML = '<p style="color:var(--text-dim);font-size:0.85rem;padding:0.5rem 0;">No Supabase uploaded videos yet. Use the upload box above to add one.</p>';
+    return;
+  }
+
+  list.innerHTML = `<h4 style="font-family:var(--font-title);font-size:.85rem;color:var(--w-blue);margin-bottom:1rem;letter-spacing:1px;">MY CLOUD UPLOADED VIDEOS (${cloudVideos.length})</h4>` +
+    cloudVideos.map(v => `
       <div class="uploaded-item">
         <div class="uploaded-thumb"><video src="${escapeHTML(v.url)}" muted preload="metadata"></video></div>
-        <div class="uploaded-info"><h4>${escapeHTML(v.title)}</h4><p>${escapeHTML(v.category)} &bull; Saved</p></div>
+        <div class="uploaded-info"><h4>${escapeHTML(v.title)}</h4><p>${escapeHTML(v.category)} &bull; Stored in Supabase</p></div>
         <div class="uploaded-actions"><button type="button" data-list-delete="${escapeHTML(v.id)}" title="Delete"><i class="fas fa-trash"></i></button></div>
       </div>`).join('');
 
@@ -174,6 +294,11 @@ function openLightbox(vid) {
   if (!lb) return;
   const lbVideo = $('lightboxVideo');
   lbVideo.src = vid.url;
+  lbVideo.onerror = () => {
+    if (vid.fallbackUrl && lbVideo.src !== vid.fallbackUrl) {
+      lbVideo.src = vid.fallbackUrl;
+    }
+  };
   $('lightboxTitle').textContent = vid.title;
   $('lightboxDesc').textContent = vid.desc || vid.category;
   lb.classList.add('open');
@@ -200,7 +325,7 @@ document.querySelectorAll('.filter-btn').forEach(btn => btn.addEventListener('cl
   renderPortfolio(currentFilter);
 }));
 
-/* ---- Upload Controls ---- */
+/* ---- Upload Controls (Admin Only) ---- */
 const uploadZone   = $('uploadZone');
 const fileInput    = $('videoFileInput');
 const browseBtn    = $('browseBtn');
@@ -238,9 +363,17 @@ function resetUploadForm() {
 }
 
 function handleFile(file) {
+  if (!currentAdminUser) {
+    alert('Please sign in as Admin to upload videos.');
+    return;
+  }
   const allowed = ['video/mp4', 'video/webm', 'video/quicktime'];
   if (!allowed.includes(file.type)) {
     alert('Please choose an MP4, WebM or MOV video file.');
+    return;
+  }
+  if (file.size > MAX_VIDEO_BYTES) {
+    alert('Maximum video size is 50MB for Supabase Cloud Storage. Please choose a video under 50MB.');
     return;
   }
   currentFile = file;
@@ -253,7 +386,8 @@ function handleFile(file) {
 
 cancelBtn?.addEventListener('click', resetUploadForm);
 
-addBtn?.addEventListener('click', () => {
+addBtn?.addEventListener('click', async () => {
+  if (!currentAdminUser) return alert('Only signed-in Admin can upload videos.');
   const title = $('vidTitle')?.value.trim();
   if (!title) return alert('Please enter a video title!');
   if (!currentFile) return alert('Please select a video file!');
@@ -262,42 +396,60 @@ addBtn?.addEventListener('click', () => {
   uploadProgress.style.display = 'block';
   addBtn.disabled = true;
 
-  if (progressFill) progressFill.style.width = '40%';
+  const progressLabel = uploadProgress.querySelector('p');
+  if (progressLabel) progressLabel.textContent = 'Uploading to Supabase Cloud Storage... Please wait.';
+  if (progressFill) progressFill.style.width = '20%';
 
+  const safeName = currentFile.name.normalize('NFKD').replace(/[^a-zA-Z0-9._-]/g, '-').replace(/-+/g, '-').slice(-100);
+  const storagePath = `${currentAdminUser.id}/${Date.now()}-${safeName}`;
   const category = $('vidCategory')?.value || 'reels';
   const desc = $('vidDesc')?.value.trim() || '';
 
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    if (progressFill) progressFill.style.width = '80%';
-    const base64 = e.target.result;
-    const newVideo = {
-      id: 'upload-' + Date.now(),
-      title,
-      category,
-      desc,
-      url: base64,
-      isBuiltIn: false,
-      createdAt: new Date().toISOString()
-    };
+  try {
+    if (progressFill) progressFill.style.width = '50%';
 
-    try {
-      const userVideos = JSON.parse(localStorage.getItem('winorra_user_videos') || '[]');
-      userVideos.unshift(newVideo);
-      localStorage.setItem('winorra_user_videos', JSON.stringify(userVideos));
-    } catch (err) {
-      console.warn('LocalStorage limit for large file.');
-    }
+    // 1. Upload to Supabase Storage
+    const { data: uploaded, error: uploadError } = await supabaseClient.storage
+      .from(BUCKET)
+      .upload(storagePath, currentFile, {
+        cacheControl: '3600',
+        contentType: currentFile.type,
+        upsert: false
+      });
+
+    if (uploadError) throw uploadError;
+
+    if (progressFill) progressFill.style.width = '80%';
+    const { data: publicData } = supabaseClient.storage.from(BUCKET).getPublicUrl(uploaded.path);
+
+    // 2. Save Row in Supabase Database
+    const { error: insertError } = await supabaseClient
+      .from('portfolio_videos')
+      .insert({
+        title,
+        category,
+        description: desc,
+        file_path: uploaded.path,
+        public_url: publicData.publicUrl,
+        created_by: currentAdminUser.id
+      });
+
+    if (insertError) throw insertError;
 
     if (progressFill) progressFill.style.width = '100%';
-    setTimeout(() => {
+    setTimeout(async () => {
       addBtn.disabled = false;
       resetUploadForm();
-      loadVideos();
+      await loadPortfolio();
       $('portfolio')?.scrollIntoView({ behavior: 'smooth' });
-    }, 400);
-  };
-  reader.readAsDataURL(currentFile);
+    }, 500);
+
+  } catch (err) {
+    console.error('Supabase upload error:', err);
+    alert('Upload failed: ' + (err.message || 'Check your Supabase setup and policies.'));
+    addBtn.disabled = false;
+    resetUploadForm();
+  }
 });
 
 /* ---- Navbar & Scroll ---- */
@@ -399,7 +551,7 @@ if (canvas && ctx) {
 
 /* ---- Window Load ---- */
 window.addEventListener('load', () => {
-  loadVideos();
+  initSupabase();
   setTimeout(() => {
     const loader = $('loader');
     if (loader) loader.classList.add('hide');
