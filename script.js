@@ -476,8 +476,34 @@ window.addEventListener('scroll', () => {
   });
 });
 
-hamburger?.addEventListener('click', () => navLinks?.classList.toggle('open'));
-document.querySelectorAll('.nav-link').forEach(l => l.addEventListener('click', () => navLinks?.classList.remove('open')));
+const navBackdrop = $('navBackdrop');
+const mobileNavClose = $('mobileNavClose');
+
+function openMobileNav() {
+  hamburger?.classList.add('open');
+  navLinks?.classList.add('open');
+  navBackdrop?.classList.add('open');
+  document.body.classList.add('menu-open');
+}
+
+function closeMobileNav() {
+  hamburger?.classList.remove('open');
+  navLinks?.classList.remove('open');
+  navBackdrop?.classList.remove('open');
+  document.body.classList.remove('menu-open');
+}
+
+hamburger?.addEventListener('click', () => {
+  if (navLinks?.classList.contains('open')) {
+    closeMobileNav();
+  } else {
+    openMobileNav();
+  }
+});
+
+mobileNavClose?.addEventListener('click', closeMobileNav);
+navBackdrop?.addEventListener('click', closeMobileNav);
+document.querySelectorAll('.nav-link').forEach(l => l.addEventListener('click', closeMobileNav));
 $('backToTop')?.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
 /* ---- Stat Counters & Skill Animation ---- */
@@ -519,13 +545,18 @@ if ('IntersectionObserver' in window) {
   document.querySelectorAll('.hero-stats').forEach(s => statObs.observe(s));
 }
 
-/* ---- Cursor Follower ---- */
+/* ---- Cursor Follower (Desktop Only) ---- */
 const dot  = $('cursorDot');
 const ring = $('cursorRing');
-document.addEventListener('mousemove', e => {
-  if (dot)  { dot.style.left  = e.clientX + 'px'; dot.style.top  = e.clientY + 'px'; }
-  if (ring) { ring.style.left = e.clientX + 'px'; ring.style.top = e.clientY + 'px'; }
-});
+if (window.matchMedia && !window.matchMedia('(pointer: coarse)').matches && window.innerWidth > 1024) {
+  document.addEventListener('mousemove', e => {
+    if (dot)  { dot.style.left  = e.clientX + 'px'; dot.style.top  = e.clientY + 'px'; }
+    if (ring) { ring.style.left = e.clientX + 'px'; ring.style.top = e.clientY + 'px'; }
+  });
+} else {
+  if (dot) dot.style.display = 'none';
+  if (ring) ring.style.display = 'none';
+}
 
 /* ---- Ambient Particle Canvas ---- */
 const canvas = $('particleCanvas');
