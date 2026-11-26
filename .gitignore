@@ -1,0 +1,8 @@
+videos_backup/
+videos_large/
+node_modules/
+videos/
+*.mp4
+*.mov
+*.avi
+*.mkv
