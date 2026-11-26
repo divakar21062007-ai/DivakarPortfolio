@@ -21,32 +21,6 @@ const STREAM_BEAT = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/
 const STREAM_CINE = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4';
 const STREAM_DES  = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4';
 
-// 23 Baseline Edited Videos
-const BUILT_IN_VIDEOS = [
-  { id: 'sago-1', title: 'SagoTalks Brand Reel', category: 'reels', desc: 'Dynamic pacing, custom typography & engaging short-form reel edit.', url: 'sagotalks_20261114_113455471.mp4', fallbackUrl: STREAM_REEL, isBuiltIn: true },
-  { id: 'sago-2', title: 'SagoTalks Podcast Clip', category: 'reels', desc: 'Speaker highlights, sound design & smooth visual cuts.', url: 'sagotalks_20261114_123024731.mp4', fallbackUrl: STREAM_REEL, isBuiltIn: true },
-  { id: 'sago-3', title: 'SagoTalks Promo Beat Sync', category: 'beats', desc: 'High energy transitions synced to the beat with dynamic zoom ramps.', url: 'sagotalks_20261114_123035754.mp4', fallbackUrl: STREAM_BEAT, isBuiltIn: true },
-  { id: 'sago-4', title: 'SagoTalks Talk Series', category: 'reels', desc: 'Clean subtitles, color grading & brand-focused content layout.', url: 'sagotalks_20261114_123042493.mp4', fallbackUrl: STREAM_REEL, isBuiltIn: true },
-  { id: 'edit-23', title: 'Cinematic Narrative Edit', category: 'cinematic', desc: 'High-definition color grade, pacing & emotional storytelling flow.', url: 'lv_0_20261109094127.mp4', fallbackUrl: STREAM_CINE, isBuiltIn: true },
-  { id: 'edit-22', title: 'Dynamic Commercial Cut', category: 'cinematic', desc: 'Polished brand visual edit with cinematic transitions & sound design.', url: 'lv_0_20261108161218.mp4', fallbackUrl: STREAM_CINE, isBuiltIn: true },
-  { id: 'edit-21', title: 'Trending Instagram Reel', category: 'reels', desc: 'Engaging hook, modern text styling & fast-paced cuts for high retention.', url: 'lv_0_20261102142742.mp4', fallbackUrl: STREAM_REEL, isBuiltIn: true },
-  { id: 'edit-20', title: 'Typography Motion Graphic', category: 'design', desc: 'Canva & Photoshop graphics animated with smooth typography layout.', url: 'lv_0_20260907104636.mp4', fallbackUrl: STREAM_DES, isBuiltIn: true },
-  { id: 'edit-19', title: 'Fast Beat Sync Reel', category: 'beats', desc: 'Rapid cuts matched precisely to musical drops and snare hits.', url: 'lv_0_20260902092133.mp4', fallbackUrl: STREAM_BEAT, isBuiltIn: true },
-  { id: 'edit-18', title: 'Cinematic Story Sequence', category: 'cinematic', desc: 'Atmospheric color palette, slow-motion sequences & seamless flow.', url: 'lv_0_20260826135818.mp4', fallbackUrl: STREAM_CINE, isBuiltIn: true },
-  { id: 'edit-17', title: 'Creative Visual Effects Edit', category: 'reels', desc: 'Creative seamless transitions & modern visual effects for social media.', url: 'lv_0_20260620204938.mp4', fallbackUrl: STREAM_REEL, isBuiltIn: true },
-  { id: 'edit-16', title: 'Color Grade & Film Tone', category: 'cinematic', desc: 'Rich cinematic LUTs, warm tone mapping and depth enhancement.', url: 'lv_0_20260610222617.mp4', fallbackUrl: STREAM_CINE, isBuiltIn: true },
-  { id: 'edit-15', title: 'Sound Design & Drop Sync', category: 'beats', desc: 'Punchy sound effects with audio-visual synchronization.', url: 'lv_0_20260610031510.mp4', fallbackUrl: STREAM_BEAT, isBuiltIn: true },
-  { id: 'edit-14', title: 'Full Length Creative Edit', category: 'cinematic', desc: 'Complete video production edit with layered audio and visuals.', url: 'lv_0_20260110160118.mp4', fallbackUrl: STREAM_CINE, isBuiltIn: true },
-  { id: 'edit-13', title: 'Beat Drop Transition Reel', category: 'beats', desc: 'Fast-paced cuts matched precisely with musical drops and rhythm.', url: 'lv_0_20251230090721.mp4', fallbackUrl: STREAM_BEAT, isBuiltIn: true },
-  { id: 'edit-12', title: 'Social Media Promo Cut', category: 'reels', desc: 'Promo reel edit crafted for maximum audience engagement and shares.', url: 'lv_0_20251127102443.mp4', fallbackUrl: STREAM_REEL, isBuiltIn: true },
-  { id: 'edit-11', title: 'Aesthetic Flow Reel', category: 'reels', desc: 'Soft aesthetic color grading, gentle zooms & stylish text layout.', url: 'lv_0_20251121120854.mp4', fallbackUrl: STREAM_REEL, isBuiltIn: true },
-  { id: 'edit-10', title: 'Seamless Transition Clip', category: 'reels', desc: 'Speed ramping, whip pans and masked transition effects.', url: 'lv_0_20250921212808.mp4', fallbackUrl: STREAM_REEL, isBuiltIn: true },
-  { id: 'edit-9', title: 'Branding & Typography Edit', category: 'design', desc: 'Clean brand title cards, lower thirds and logo reveal animations.', url: 'lv_0_20250910124632.mp4', fallbackUrl: STREAM_DES, isBuiltIn: true },
-  { id: 'edit-8', title: 'Audio Reactive Beat Sync', category: 'beats', desc: 'Rhythmically driven pacing with speed alterations on the beat.', url: 'lv_0_20250910121628.mp4', fallbackUrl: STREAM_BEAT, isBuiltIn: true },
-  { id: 'edit-7', title: 'Shorts Hook & Fast Pacing', category: 'reels', desc: 'First 3-second hook structure optimized for Shorts & Reels algorithms.', url: 'lv_0_20250910025246.mp4', fallbackUrl: STREAM_REEL, isBuiltIn: true },
-  { id: 'edit-6', title: 'Cinematic Mood & Ambiance', category: 'cinematic', desc: 'Dramatic mood lighting, cinematic wide framing & slow motion.', url: 'lv_0_20250910021851.mp4', fallbackUrl: STREAM_CINE, isBuiltIn: true },
-  { id: 'edit-5', title: 'Creative Montage Edit', category: 'reels', desc: 'High energy montage weaving multiple angles into a compelling story.', url: 'lv_0_20250828061649.mp4', fallbackUrl: STREAM_REEL, isBuiltIn: true }
-];
 
 const $ = (id) => document.getElementById(id);
 const escapeHTML = (value = '') => String(value).replace(/[&<>"']/g, (c) => ({
